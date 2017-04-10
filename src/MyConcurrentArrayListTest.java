@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -58,8 +59,10 @@ class MyConcurrentArrayListTest {
 
     intList.add(99);
     Iterator<Integer> iterator = intList.iterator();
+
     assertNotNull(iterator);
     assertTrue(iterator.hasNext());
+
     assertTrue(iterator.next() == 99);
     try {
       assertFalse(iterator.hasNext());
@@ -67,9 +70,71 @@ class MyConcurrentArrayListTest {
     } catch (Exception e) {
       assertEquals(e.getClass(), IndexOutOfBoundsException.class);
     }
+    iterator.remove();
+    assertTrue(intList.isEmpty());
 
     intList.clear();
   }
+
+
+  @Test
+  void listIterator() {
+    intList.clear();
+
+    ListIterator<Integer> listIterator = intList.listIterator();
+    assertFalse(listIterator.hasPrevious());
+    assertFalse(listIterator.hasNext());
+    try {
+      listIterator.previousIndex();
+    } catch (Exception e) {
+      assertEquals(e.getClass(), IndexOutOfBoundsException.class);
+    }
+    try {
+      listIterator.nextIndex();
+    } catch (Exception e) {
+      assertEquals(e.getClass(), IndexOutOfBoundsException.class);
+    }
+    try {
+      intList.listIterator(1);
+    } catch (Exception e) {
+      assertEquals(e.getClass(), IndexOutOfBoundsException.class);
+    }
+
+    listIterator.add(123);
+    listIterator.add(456);
+    listIterator.add(789);
+    assertTrue(listIterator.hasNext());
+    assertTrue(listIterator.next() == 123);
+
+    assertTrue(listIterator.hasNext());
+    assertTrue(listIterator.next() == 456);
+
+    assertTrue(listIterator.hasNext());
+    assertTrue(listIterator.next() == 789);
+
+
+    assertTrue(listIterator.hasPrevious());
+    assertTrue(listIterator.previous() == 456);
+
+    assertTrue(listIterator.hasPrevious());
+    assertTrue(listIterator.previous() == 123);
+
+    assertFalse(listIterator.hasPrevious());
+    try {
+      listIterator.previous();
+    } catch (Exception e) {
+      assertEquals(e.getClass(), IndexOutOfBoundsException.class);
+    }
+
+    listIterator = intList.listIterator(2);
+    listIterator.add(777);// new value to index 2
+    assertTrue(intList.size() == 4);// new size!
+    assertTrue(listIterator.next() == 789); // moved right
+    assertTrue(listIterator.previous() == 777);//index 2
+
+    intList.clear();
+  }
+
 
   @Test
   void toArray() {
@@ -453,20 +518,6 @@ class MyConcurrentArrayListTest {
   }
 
   @Test
-  void listIterator() {
-
-
-    intList.clear();
-  }
-
-  @Test
-  void listIterator1() {
-
-
-    intList.clear();
-  }
-
-  @Test
   void subList() {
     intList.clear();
 
@@ -499,5 +550,55 @@ class MyConcurrentArrayListTest {
     System.out.println("size = " + intList.size());
     assertTrue(intList.size() == 10_000);
     intList.clear();
+  }
+
+  @Test
+  void cloneInt() throws CloneNotSupportedException {
+    intList.clear();
+    for (int i = 0; i < 30; i++)
+      intList.add(i);
+    MyConcurrentArrayList<Integer> clonedList = intList.clone();
+    clonedList.set(0, 789);
+    clonedList.set(1, 456);
+    clonedList.set(2, 123);
+
+    assertFalse(intList.get(0) == clonedList.get(0));
+    assertNotEquals(intList.get(0), clonedList.get(0));
+
+    assertFalse(intList.get(1) == clonedList.get(1));
+    assertNotEquals(intList.get(1), clonedList.get(1));
+
+    assertFalse(intList.get(2) == clonedList.get(2));
+    assertNotEquals(intList.get(0), clonedList.get(0));
+
+    assertTrue(intList.get(3) == clonedList.get(3));
+    assertEquals(intList.get(3), clonedList.get(3));
+
+    intList.clear();
+  }
+
+  @Test
+  void cloneString() throws CloneNotSupportedException {
+    stringList.clear();
+    for (int i = 0; i < 30; i++)
+      stringList.add("stringList-i");
+    MyConcurrentArrayList<String> clonedList = stringList.clone();
+    clonedList.set(0, "stringList" + 789);
+    clonedList.set(1, "stringList" + 456);
+    clonedList.set(2, "stringList" + 123);
+
+    assertFalse(stringList.get(0) == clonedList.get(0));
+    assertNotEquals(stringList.get(0), clonedList.get(0));
+
+    assertFalse(stringList.get(1) == clonedList.get(1));
+    assertNotEquals(stringList.get(1), clonedList.get(1));
+
+    assertFalse(stringList.get(2) == clonedList.get(2));
+    assertNotEquals(stringList.get(0), clonedList.get(0));
+
+    assertTrue(stringList.get(3) == clonedList.get(3));
+    assertEquals(stringList.get(3), clonedList.get(3));
+
+    stringList.clear();
   }
 }

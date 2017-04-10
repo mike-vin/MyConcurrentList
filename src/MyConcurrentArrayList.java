@@ -1,10 +1,11 @@
 import com.sun.istack.internal.NotNull;
 
+import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class MyConcurrentArrayList<T> implements List<T> {
+public class MyConcurrentArrayList<T> implements List<T>, Serializable, Cloneable {
   private volatile Object[] MAIN_ARRAY = new Object[1_0/*00_000*/];
   private Lock LOCK = new ReentrantLock();// for example!
 
@@ -273,12 +274,12 @@ public class MyConcurrentArrayList<T> implements List<T> {
 
   @Override
   public ListIterator<T> listIterator() {
-    return null; // << NOT NOW ! >>
+    return new MyListIterator();
   }
 
   @Override
   public ListIterator<T> listIterator(int index) {
-    return null; // << NOT NOW ! >>
+    return new MyListIterator(index);
   }
 
   @Override
@@ -297,7 +298,7 @@ public class MyConcurrentArrayList<T> implements List<T> {
   //______________________________________________________________________________________________________________
 //-------------------------------------------------------------------------------------------------------------
   private class MyIterator implements Iterator<T> {
-    private int cursor = -1;
+    protected volatile int cursor = -1;
 
     @Override
     public boolean hasNext() {
@@ -307,7 +308,7 @@ public class MyConcurrentArrayList<T> implements List<T> {
     }
 
     @Override
-    public T next() throws IndexOutOfBoundsException {
+    public T next() {
       synchronized (MAIN_ARRAY) {
         if (!hasNext()) throw new IndexOutOfBoundsException("HASN'T NEXT! size is " + size());
         return (T) MAIN_ARRAY[++cursor];
@@ -324,40 +325,60 @@ public class MyConcurrentArrayList<T> implements List<T> {
   }
 
 
-//______________________________________________________________________________________________________________
-//------------------------------------------<< NOT NOW ! >>---------------------------------------------
-//______________________________________________________________________________________________________________
-
+  //______________________________________________________________________________________________________________
   private class MyListIterator extends MyIterator implements ListIterator<T> {
+    public MyListIterator() {
+    }
+
+    public MyListIterator(int index) {
+      synchronized (MAIN_ARRAY) {
+        if (index < 0 || index > size())
+          throw new IndexOutOfBoundsException("index is " + index + " size is " + size());
+        super.cursor = index;
+      }
+    }
 
     @Override
     public boolean hasPrevious() {
-      return false;
+      synchronized (MAIN_ARRAY) {
+        return cursor > 0;
+      }
     }
 
     @Override
     public T previous() {
-      return null;
+      synchronized (MAIN_ARRAY) {
+        return hasPrevious() ? (T) MAIN_ARRAY[--cursor] : null;
+      }
     }
 
     @Override
     public int nextIndex() {
-      return 0;
+      synchronized (MAIN_ARRAY) {
+        if (cursor == -1) throw new IndexOutOfBoundsException("HASN'T next! size is " + size());
+        return MAIN_ARRAY[cursor + 1] == null ? 0 : cursor + 1;
+      }
     }
 
     @Override
     public int previousIndex() {
-      return 0;
+      synchronized (MAIN_ARRAY) {
+        if (cursor == -1) throw new IndexOutOfBoundsException("HASN'T previous ! size is " + size());
+        return cursor > 0 ? cursor - 1 : size() - 1;
+      }
     }
 
     @Override
     public void set(T t) {
-
+      synchronized (MAIN_ARRAY) {
+        MAIN_ARRAY[cursor] = t;
+      }
     }
 
     @Override
     public void add(T t) {
-
+      if (cursor == -1) MyConcurrentArrayList.this.add(t);
+      else MyConcurrentArrayList.this.add(cursor, t);
     }
   }
 
@@ -388,6 +409,16 @@ public class MyConcurrentArrayList<T> implements List<T> {
       StringBuilder stringBuilder = new StringBuilder();
       for (int i = 0; i < size; i++) stringBuilder.append(MAIN_ARRAY[i] + "\n");
       return stringBuilder.toString();
+    }
+  }
+
+  @Override
+  protected MyConcurrentArrayList<T> clone() throws CloneNotSupportedException {
+    synchronized (MAIN_ARRAY) {
+      Object[] clonedCopy = Arrays.copyOf(MAIN_ARRAY, size());
+      MyConcurrentArrayList<T> cloneCopyList = new MyConcurrentArrayList<>();
+      for (Object bject : clonedCopy) cloneCopyList.add((T) bject);
+      return cloneCopyList;
     }
   }
 }
