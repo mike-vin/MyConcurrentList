@@ -1,4 +1,5 @@
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -18,6 +19,12 @@ class MyConcurrentArrayListTest {
     stringList = new MyConcurrentArrayList<>();
   }
 
+  @BeforeEach
+  void clearLists() {
+    intList.clear();
+    stringList.clear();
+  }
+
   @Test
   void size() {
     intList.clear();
@@ -27,35 +34,30 @@ class MyConcurrentArrayListTest {
     assertFalse(intList.get(0) == null);
     assertFalse(intList.get(0) == 11);
 
-    intList.clear();
   }
+
 
   @Test
   void isEmpty() {
-    intList.clear();
 
     assertTrue(intList.isEmpty());
     intList.add(99);
     assertFalse(intList.isEmpty());
     assertTrue(99 == intList.get(0));
 
-    intList.clear();
   }
 
   @Test
   void contains() {
-    intList.clear();
 
     intList.add(99);
     assertTrue(intList.contains(99));
     assertFalse(intList.contains(66));
 
-    intList.clear();
   }
 
   @Test
   void iterator() {
-    intList.clear();
 
     intList.add(99);
     Iterator<Integer> iterator = intList.iterator();
@@ -73,13 +75,10 @@ class MyConcurrentArrayListTest {
     iterator.remove();
     assertTrue(intList.isEmpty());
 
-    intList.clear();
   }
-
 
   @Test
   void listIterator() {
-    intList.clear();
 
     ListIterator<Integer> listIterator = intList.listIterator();
     assertFalse(listIterator.hasPrevious());
@@ -132,7 +131,6 @@ class MyConcurrentArrayListTest {
     assertTrue(listIterator.next() == 789); // moved right
     assertTrue(listIterator.previous() == 777);//index 2
 
-    intList.clear();
   }
 
 
@@ -149,7 +147,6 @@ class MyConcurrentArrayListTest {
 
   @Test
   void toSomeArray() {
-    intList.clear();
 
     intList.add(777); // init...
     intList.add(99); // init...
@@ -160,12 +157,10 @@ class MyConcurrentArrayListTest {
     Integer[] testArr = new Integer[2];
     Integer[] newIntegers = intList.toArray(testArr);
     //System.out.println(Arrays.toString(newIntegers));
-    intList.clear();
   }
 
   @Test
   void add() {
-    intList.clear();
 
     assertTrue(intList.add(1987));
     assertTrue(intList.get(0) == 1987);
@@ -177,12 +172,10 @@ class MyConcurrentArrayListTest {
     assertTrue(intList.size() > 11);
     assertTrue(intList.size() == 120);
 
-    intList.clear();
   }
 
   @Test
   void removeByIndex() {
-    intList.clear();
 
     assertTrue(intList.add(1987));
     assertTrue(intList.remove(0) == 1987);
@@ -192,12 +185,10 @@ class MyConcurrentArrayListTest {
       assertEquals(e.getClass(), IndexOutOfBoundsException.class);
     }
 
-    intList.clear();
   }
 
   @Test
   void removeByObject() {
-    stringList.clear();
 
     assertTrue(stringList.add("new ADD"));
     assertTrue(stringList.remove("new ADD"));
@@ -220,12 +211,10 @@ class MyConcurrentArrayListTest {
       assertEquals(e.getClass(), IndexOutOfBoundsException.class);
     }
 
-    stringList.clear();
   }
 
   @Test
   void containsAll() {
-    intList.clear();
 
 //int test>
     List<Integer> testTempList1 = new ArrayList<>();
@@ -238,12 +227,10 @@ class MyConcurrentArrayListTest {
     assertTrue(intList.containsAll(testTempList1));
     assertTrue(intList.containsAll(testTempList2));
 
-    intList.clear();
   }
 
   @Test
   void addAll() {
-    intList.clear();
 
 //int test>
     List<Integer> testTempList1 = new ArrayList<>();
@@ -263,12 +250,10 @@ class MyConcurrentArrayListTest {
     assertTrue(intList.containsAll(testTempList1));
     assertTrue(intList.containsAll(testTempList2));
 
-    intList.clear();
   }
 
   @Test
   void addAll1() {
-    intList.clear();
 
     List<Integer> testList = new ArrayList<>();
     for (int i = 0; i < 128; i++) { // in testing mode MyConcurrentArrayList.length  is 10 !
@@ -284,12 +269,10 @@ class MyConcurrentArrayListTest {
 
     //System.out.println(intList);
 
-    intList.clear();
   }
 
   @Test
   void removeAll() {
-    intList.clear();
 
 //int test>
     List<Integer> testTempList = new ArrayList<>();
@@ -307,12 +290,10 @@ class MyConcurrentArrayListTest {
     assertTrue(intList.get(4) == 9);
     assertTrue(intList.size() == 5);
 
-    intList.clear();
   }
 
   @Test
   void retainAll() {
-    intList.clear();
 
 //int test>
     List<Integer> testTempList = new ArrayList<>();
@@ -339,13 +320,10 @@ class MyConcurrentArrayListTest {
     assertTrue(intList.size() == 5);
 
 
-    intList.clear();
   }
 
   @Test
   void clear() {
-    intList.clear();
-    stringList.clear();
 
 //int test>
     intList.add(123);
@@ -362,14 +340,10 @@ class MyConcurrentArrayListTest {
     stringList.clear();
     assertTrue(stringList.size() == 0);
 
-    stringList.clear();
-    intList.clear();
   }
 
   @Test
   void get() {
-    intList.clear();
-    stringList.clear();
 
 //int test>
     for (int i = 0; i < 10; i++)
@@ -385,14 +359,10 @@ class MyConcurrentArrayListTest {
     assertTrue(stringList.get(0).equals("new ADD-0"));
     assertEquals(stringList.get(stringList.size() - 1), "new ADD-9");
 
-    stringList.clear();
-    intList.clear();
   }
 
   @Test
   void set() {
-    intList.clear();
-    stringList.clear();
 
 //int test>
     for (int i = 0; i < 10; i++)
@@ -418,14 +388,10 @@ class MyConcurrentArrayListTest {
     assertTrue(stringList.get(1).equals("new ADD-9"));
     assertEquals(stringList.get(stringList.size() - 1), "new ADD-9");
 
-    stringList.clear();
-    intList.clear();
   }
 
   @Test
   void add1() {
-    intList.clear();
-    stringList.clear();
 
 //int test>
     for (int i = 0; i < 10; i++)
@@ -452,14 +418,10 @@ class MyConcurrentArrayListTest {
     assertEquals(stringList.get(8), "new ADD-111");
     assertEquals(stringList.get(9), "new ADD-9");
 
-    intList.clear();
-    stringList.clear();
   }
 
   @Test
   void indexOf() {
-    intList.clear();
-    stringList.clear();
 
 //int test>
     for (int i = 10; i > 0; i--)
@@ -484,14 +446,10 @@ class MyConcurrentArrayListTest {
 
     assertEquals(stringList.get(stringList.indexOf("new ADD-1")), "new ADD-1");
 
-    intList.clear();
-    stringList.clear();
   }
 
   @Test
   void lastIndexOf() {
-    intList.clear();
-    stringList.clear();
 
 //int test>
     for (int i = 10; i > 0; i--)
@@ -513,13 +471,10 @@ class MyConcurrentArrayListTest {
     assertFalse(stringList.indexOf("new ADD") == 9); // False
     assertEquals(stringList.get(5), "new ADD");
 
-    intList.clear();
-    stringList.clear();
   }
 
   @Test
   void subList() {
-    intList.clear();
 
     //int test>
     List<Integer> testList = new ArrayList<>();
@@ -532,7 +487,6 @@ class MyConcurrentArrayListTest {
       assertTrue(subList.get(i) == testList.get(i));
       assertEquals(subList.get(i), testList.get(i));
     }
-    intList.clear();
   }
 
   @Test
@@ -549,15 +503,16 @@ class MyConcurrentArrayListTest {
     Thread.sleep(1234);
     System.out.println("size = " + intList.size());
     assertTrue(intList.size() == 10_000);
-    intList.clear();
   }
 
   @Test
   void cloneInt() throws CloneNotSupportedException {
-    intList.clear();
+
     for (int i = 0; i < 30; i++)
       intList.add(i);
     MyConcurrentArrayList<Integer> clonedList = intList.clone();
+    assertNotEquals(intList, clonedList);
+
     clonedList.set(0, 789);
     clonedList.set(1, 456);
     clonedList.set(2, 123);
@@ -574,15 +529,16 @@ class MyConcurrentArrayListTest {
     assertTrue(intList.get(3) == clonedList.get(3));
     assertEquals(intList.get(3), clonedList.get(3));
 
-    intList.clear();
+    assertNotEquals(intList, clonedList);
+
   }
 
   @Test
   void cloneString() throws CloneNotSupportedException {
-    stringList.clear();
     for (int i = 0; i < 30; i++)
       stringList.add("stringList-i");
     MyConcurrentArrayList<String> clonedList = stringList.clone();
+
     clonedList.set(0, "stringList" + 789);
     clonedList.set(1, "stringList" + 456);
     clonedList.set(2, "stringList" + 123);
@@ -599,6 +555,6 @@ class MyConcurrentArrayListTest {
     assertTrue(stringList.get(3) == clonedList.get(3));
     assertEquals(stringList.get(3), clonedList.get(3));
 
-    stringList.clear();
+    assertNotEquals(stringList, clonedList);
   }
 }

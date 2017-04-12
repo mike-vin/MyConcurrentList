@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Consumer;
 
 public class MyConcurrentArrayList<T> implements List<T>, Serializable, Cloneable {
   private volatile Object[] MAIN_ARRAY = new Object[1_0/*00_000*/];
@@ -54,8 +55,7 @@ public class MyConcurrentArrayList<T> implements List<T>, Serializable, Cloneabl
   @Override
   public Object[] toArray() {
     synchronized (MAIN_ARRAY) {
-      int size = size();
-      return Arrays.copyOf(MAIN_ARRAY, size);
+      return Arrays.copyOf(MAIN_ARRAY, size());
     }
   }
 
@@ -318,7 +318,8 @@ public class MyConcurrentArrayList<T> implements List<T>, Serializable, Cloneabl
     @Override
     public void remove() {
       synchronized (MAIN_ARRAY) {
-        for (int i = cursor; i < MAIN_ARRAY.length - 1; )
+        int size = size();
+        for (int i = cursor; i <= size; )
           MAIN_ARRAY[i] = MAIN_ARRAY[++i];
       }
     }
@@ -355,16 +356,16 @@ public class MyConcurrentArrayList<T> implements List<T>, Serializable, Cloneabl
     @Override
     public int nextIndex() {
       synchronized (MAIN_ARRAY) {
-        if (cursor == -1) throw new IndexOutOfBoundsException("HASN'T next! size is " + size());
-        return MAIN_ARRAY[cursor + 1] == null ? 0 : cursor + 1;
+        if (MAIN_ARRAY[cursor + 1] == null) throw new IndexOutOfBoundsException("HASN'T next! size is " + size());
+        return  cursor + 1;
       }
     }
 
     @Override
     public int previousIndex() {
       synchronized (MAIN_ARRAY) {
-        if (cursor == -1) throw new IndexOutOfBoundsException("HASN'T previous ! size is " + size());
-        return cursor > 0 ? cursor - 1 : size() - 1;
+        if (cursor <=0) throw new IndexOutOfBoundsException("HASN'T previous ! size is " + size());
+        return cursor - 1 ;
       }
     }
 
@@ -404,7 +405,6 @@ public class MyConcurrentArrayList<T> implements List<T>, Serializable, Cloneabl
   @Override
   public String toString() {
     synchronized (MAIN_ARRAY) {
-
       int size = size();
       StringBuilder stringBuilder = new StringBuilder();
       for (int i = 0; i < size; i++) stringBuilder.append(MAIN_ARRAY[i] + "\n");
